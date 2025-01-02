@@ -4,11 +4,12 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
-const api = require('./src/routes/api.routes')
+const api = require('../src/routes/api.routes')
 
 dotenv.config();
 const port = process.env.PORT
-const databaseConnect = require('./src/config/db')
+const databaseConnect = require('../src/config/db');
+const { applyVirtuals } = require('../src/models/Client');
 databaseConnect()
 
 app.use(express.json())
