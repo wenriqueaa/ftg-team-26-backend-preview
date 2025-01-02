@@ -10,6 +10,11 @@ app.get('/favicon.ico', (req, res) => {
     res.status(204).end(); // Devuelve un código 204 No Content
 });
 
+// Definición de rutas
+app.get('/api/example', (req, res) => {
+    res.json({ message: 'This is a valid route' });
+});
+
 dotenv.config();
 const port = process.env.PORT
 const databaseConnect = require('../src/config/db');
