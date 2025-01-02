@@ -12,3 +12,5 @@ src/controllers/roleAccess.js
 src/controllers/roleAccess.controller.js
 
 #.vercel
+.vercel
+vercel-ant.json
