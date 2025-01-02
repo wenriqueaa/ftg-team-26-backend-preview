@@ -518,13 +518,20 @@ const getAllTechnician = async (req, res) => {
 const registerAuditLog = async (req, action, documentId, changes) => {
     const token = req.header('Authorization')?.split(' ')[1];
     const secret = process.env.SECRET_KEY;
-    const decoded = jwt.verify(token, secret);
+    let auditLogUser = 'anonymous';
+    if (token) {
+        const decoded = jwt.verify(token, secret);
+        auditLogUser = decoded.userData
+    } 
+    if (!token && documentId) {
+        auditLogUser = documentId
+    } 
     const auditLogData = {
-        auditLogUser: decoded.userData || 'anonymous why?',         // User who performed the action (can be null)
-        auditLogAction: action,                                     // Action performed e.g., "CREATE", "UPDATE", "DELETE"
-        auditLogModel: 'User',                                    // Affected model, e.g., "User"
-        auditLogDocumentId: documentId,                             // ID of the affected document (can be null)
-        auditLogChanges: changes                                    // Changes made or additional information (not mandatory)
+        auditLogUser: auditLogUser,                             // User who performed the action (can be null)
+        auditLogAction: action,                                 // Action performed e.g., "CREATE", "UPDATE", "DELETE"
+        auditLogModel: 'User',                                  // Affected model, e.g., "User"
+        auditLogDocumentId: documentId,                         // ID of the affected document (can be null)
+        auditLogChanges: changes                                // Changes made or additional information (not mandatory)
     }
     await AuditLogController.createAuditLog(auditLogData);
 };
