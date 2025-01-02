@@ -5,11 +5,9 @@ const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
 const api = require('../src/routes/api.routes')
-const path = require('path');
 
-// Ruta explícita para servir favicon
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'favicon.ico')); 
+    res.status(204).end(); // Devuelve un código 204 No Content
 });
 
 dotenv.config();
