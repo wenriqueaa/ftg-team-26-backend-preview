@@ -98,7 +98,7 @@ const createUser = async (req, res) => {
         );
 
         // Enviar correo de confirmación
-        const confirmationLink = `http://${process.env.CLIENT_URL}${process.env.PORT}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `http://${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: 'Bienvenido a gestiON',
