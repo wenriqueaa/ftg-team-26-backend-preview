@@ -5,6 +5,14 @@ const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
 const api = require('../src/routes/api.routes')
+const path = require('path');
+
+// Servir favicon
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.join(__dirname, 'favicon.ico'));
+});
+
+
 
 dotenv.config();
 const port = process.env.PORT
