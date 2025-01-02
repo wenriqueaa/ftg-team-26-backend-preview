@@ -7,12 +7,10 @@ const cors = require('cors')
 const api = require('../src/routes/api.routes')
 const path = require('path');
 
-// Servir favicon
+// Ruta explícita para servir favicon
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, 'favicon.ico'));
+    res.sendFile(path.join(__dirname, 'public', 'favicon.ico')); 
 });
-
-
 
 dotenv.config();
 const port = process.env.PORT
