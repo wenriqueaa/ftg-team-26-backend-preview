@@ -2,7 +2,7 @@
 node_modules/
 
 # Environment variables
-.env
+#.env
 
 # others directories
 reference-documents/
@@ -11,4 +11,4 @@ reference-documents/
 src/controllers/roleAccess.js
 src/controllers/roleAccess.controller.js
 
-.vercel
+#.vercel
