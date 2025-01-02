@@ -32,7 +32,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `${process.env.CLIENT_URL}:${process.env.PORT}/api`, // Replace with your server URL
+                url: `/api`, // Replace with your server URL
             },
         ],
         components: {
