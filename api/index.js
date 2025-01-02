@@ -9,13 +9,12 @@ const path = require('path');
 
 // Ruta explícita para servir favicon
 app.get('/favicon.ico', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'favicon.ico')); 
+    res.sendFile(path.join(__dirname, '../public', 'favicon.ico')); 
 });
 
 dotenv.config();
 const port = process.env.PORT
 const databaseConnect = require('../src/config/db');
-const { applyVirtuals } = require('../src/models/Client');
 databaseConnect()
 
 app.use(express.json())
