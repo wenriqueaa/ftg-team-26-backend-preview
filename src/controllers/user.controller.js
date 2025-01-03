@@ -22,7 +22,9 @@ const createUser = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
-        if (decoded.userData.userRole !== 'administrator') {
+        const userDataToken = await User.findById(decoded.userData);
+
+        if (userDataToken.userRole !== 'administrator') {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para crear usuarios'
@@ -36,6 +38,12 @@ const createUser = async (req, res) => {
             return res.status(400).json({
                 ok: false,
                 message: 'Se requiere nombre'
+            });
+        }
+        if (!nuevoUser.userLastName) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Se requiere apellido'
             });
         }
         if (!nuevoUser.userEmail) {
@@ -74,13 +82,14 @@ const createUser = async (req, res) => {
                 message: 'Ya existe registro con este email'
             });
         }
+        const findUserFullName = `${nuevoUser.userName} ${nuevoUser.userLastName}`;
 
         // Buscar al usuario por name
-        user = await User.findOne({ username: nuevoUser.userName });
+        user = await User.findOne({ userFullName: findUserFullName });
         if (user) {
             return res.status(404).json({
                 ok: false,
-                message: 'Ya existe registro con este nombre'
+                message: 'Ya existe registro con este nombre y apellido'
             });
         }
         // Generar un token de confirmación con expiración de CONFIRMATION_EXPIRATION hora
@@ -103,7 +112,7 @@ const createUser = async (req, res) => {
         const confirmationLink = `http://${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
-            subject: `Bienvenido ${userName} a gestiON`,
+            subject: `Bienvenido ${nuevoUser.userFullName} a gestiON`,
             text: `Por favor confirma tu registro haciendo clic en el enlace:
               "${confirmationLink}"
               Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora(s)`,
@@ -195,7 +204,7 @@ const loginUser = async (req, res) => {
         user.failedAttempts = 0;
 
         // Registrar el intento exitoso
-        const token = await generateToken(user._id, user.userEmail, user.userRole)
+        const token = await generateToken(user._id, user.userEmail, user.userRole);
 
         user.userLoginAttempts.push({
             status: 'success',
@@ -281,7 +290,7 @@ const hasAdministrator = async (req, res) => {
 };
 
 const registerAdmin = async (req, res) => {
-    const { userName, userEmail, userPassword } = req.body;
+    const { userName, userLastName, userEmail, userPassword } = req.body;
 
     try {
         // Verificar si ya existe al menos un administrador
@@ -297,6 +306,7 @@ const registerAdmin = async (req, res) => {
         const hashedPassword = await bcrypt.hash(userPassword, 10);
         const newUser = new User({
             userName,
+            userLastName,
             userEmail,
             userPassword: hashedPassword,
             userRole: 'administrator',
@@ -310,7 +320,7 @@ const registerAdmin = async (req, res) => {
         const confirmationLink = `http://${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
-            subject: `Bienvenido ${userName} a gestiON`,
+            subject: `Bienvenido ${userLastName} a gestiON`,
             text: `Por favor confirma tu registro haciendo clic en el enlace:
               "${confirmationLink}"
               Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora(s)`,
@@ -413,17 +423,18 @@ const getUserById = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
+        const userDataToken = await User.findById(decoded.userData);
 
         const user = await User.findById(id)
 
-        if (decoded.userData.userRole === 'technician' && decoded.userData._id !== id) {
+        if (userDataToken.userRole === 'technician' && userDataToken._id !== id) {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para consultar otros usuarios'
             });
         }
 
-        if (decoded.userData.userRole === 'supervisor' && decoded.userData._id !== id && user.userRole !== 'technician') {
+        if (userDataToken.userRole === 'supervisor' && userDataToken._id !== id && user.userRole !== 'technician') {
             return res.status(401).json({
                 ok: false,
                 message: 'Solo tienes permisos para consultar técnicos'
@@ -458,7 +469,9 @@ const getAllSupervisor = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
-        if (decoded.userData.userRole !== 'administrator') {
+        const userDataToken = await User.findById(decoded.userData);
+
+        if (userDataToken.userRole !== 'administrator') {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para consultar otros supervisores'
@@ -489,7 +502,9 @@ const getAllTechnician = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
-        if (decoded.userData.userRole === 'technician') {
+        const userDataToken = await User.findById(decoded.userData);
+
+        if (userDataToken.userRole === 'technician') {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para consultar técnicos'
@@ -542,7 +557,9 @@ const getAllUsers = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
-        if (decoded.userData.userRole !== 'administrator') {
+        const userDataToken = await User.findById(decoded.userData);
+
+        if (userDataToken.userRole !== 'administrator') {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para consultar usuarios'
@@ -570,13 +587,16 @@ const getAllUsers = async (req, res) => {
 // Update a user by id
 const updateUserById = async (req, res) => {
     const { id } = req.params;
-    const { userName, userEmail, userRole, userIsActive, userPassword } = req.body;
+    const { userName, userLastName, userEmail, userRole, userIsActive, userPassword } = req.body;
     let hasChanges = false;
     try {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
+        const userDataToken = await User.findById(decoded.userData);
+
         const updateDataById = {};
+        const changes = {};
         const originalData = await User.findById(id).lean();
         if (!originalData)
             return res.status(400).json({
@@ -584,16 +604,16 @@ const updateUserById = async (req, res) => {
                 message: 'No se encontró ningún usuario con el id proporcionado'
             })
         if (originalData) {
-            if (userName) updateDataById.userName = userName;
-            if (userEmail && decoded.userData.userRole === 'administrator') updateDataById.userEmail = userEmail;
-            if (userRole && decoded.userData.userRole === 'administrator' && userRole !== 'administrator' && decoded.userData._id !== originalData._id) updateDataById.userRole = userRole;
-            if (userIsActive && decoded.userData.userRole === 'administrator' && decoded.userData._id !== originalData._id) updateDataById.userIsActive = userIsActive;
+            if (userName) updateDataById.userName = userName.trim().upperCase();
+            if (userLastName) updateDataById.userLastName = userLastName.trim().upperCase();
+            if (userEmail && userDataToken.userRole === 'administrator') updateDataById.userEmail = userEmail;
+            if (userRole && userDataToken.userRole === 'administrator' && userRole !== 'administrator' && userDataToken._id !== originalData._id) updateDataById.userRole = userRole;
+            if (userIsActive && userDataToken.userRole === 'administrator' && userDataToken._id !== originalData._id) updateDataById.userIsActive = userIsActive;
             if (userPassword) {
-                const hashedPassword = await bcrypt.hash(userPassword, 10);;
-                updateDataById.userIsActive = hashedPassword
+                const hashedPassword = await bcrypt.hash(userPassword, 10);
+                updateDataById.userPassword = hashedPassword
             };
             // Identify changes
-            const changes = {};
             for (let key in updateDataById) {
                 if (originalData[key] !== updateDataById[key]) {
                     hasChanges = true;
@@ -603,6 +623,7 @@ const updateUserById = async (req, res) => {
                     else {
                         changes[key] = { old: originalData[key], new: updateDataById[key] }
                     };
+                    console.log('changes', changes);
                 }
             }
         }
@@ -618,7 +639,7 @@ const updateUserById = async (req, res) => {
                 message: 'No se puede actualizar el usuario, no encontrado o no se detectaron cambios'
             })
         // Register in audit_logs (req, action, documentId, changes) 
-        await registerAuditLog(req, 'UPDATE', user._id, { updateRecord: changes.toObject() });
+        await registerAuditLog(req, 'UPDATE', id, { updateRecord: changes });
 
         return res.status(200).json({
             ok: true,
@@ -642,13 +663,15 @@ const deleteUserById = async (req, res) => {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
         const decoded = jwt.verify(token, secret);
-        if (decoded.userData.userRole !== 'administrator') {
+        const userDataToken = await User.findById(decoded.userData);
+
+        if (userDataToken.userRole !== 'administrator') {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para eliminar usuarios'
             });
         }
-        if (decoded.userData._id === id) {
+        if (userDataToken._id === id) {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para autoeliminarte'

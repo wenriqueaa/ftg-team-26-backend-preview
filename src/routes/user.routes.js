@@ -123,7 +123,7 @@ router.get('/usersupervisor', validateToken, User.getAllSupervisor)
  *         application/json:
  *           schema:
  *               type: object
- *               example: {}
+ *               example: { "userName":"Supervisor", "userLastName": "Principal", "userEmail": "enriqueaa@apoyarte.com", "userRole": "supervisor", "userPassword": "654321_A"}
  *     responses:
  *       201:
  *         description: User created successfully
@@ -172,7 +172,7 @@ router.post('/user', validateToken, User.createUser)
  *         application/json:
  *           schema:
  *             type: object
- *             example: { "userAddress": "Other in, Othertown, USA" }
+ *             example: { "userLastName": "Cantillo" }
  *     responses:
  *       200:
  *         description: User updated successfully
