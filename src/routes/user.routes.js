@@ -263,7 +263,7 @@ router.delete('/user/:id', validateToken, User.deleteUserById)
  *               password:
  *                 type: string
  *                 description: The user's password
- *             example: { "email": "appgestion_qa@apoyarte.com", "password": "appgestion_qa" }
+ *             example: { "email": "appgestion_qa@apoyarte.com", "password": "" }
  *     responses:
  *       200:
  *         description: User logged in successfully

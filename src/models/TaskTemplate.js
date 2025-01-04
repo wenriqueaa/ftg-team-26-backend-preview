@@ -6,10 +6,12 @@ const TaskTemplateSchema = new Schema({
     serviceType: {
         type: String,
         enum: ['inspection', 'installation', 'maintenance'],
-        required: true
+        required: true,
+        inmutable: true
     },
     taskTemplateOrdering: {
-        type: Number
+        type: Number,
+        inmutable: true
     },
     taskTemplateDescription: {
         type: String,
