@@ -6,6 +6,14 @@ const User = require('../controllers/user.controller')
 
 const { validateToken } = require('../middlewares/validateToken')
 
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management
+ */
+
+
 // get all user records
 /**
  * @swagger

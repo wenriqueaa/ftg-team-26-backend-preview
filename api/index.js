@@ -63,6 +63,12 @@ const swaggerOptions = {
 // Initialize Swagger documentation
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
+const options = {
+    swaggerOptions: {
+        docExpansion: 'none', // Colapsar encabezados
+    },
+};
+
 // Use Swagger-UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
 console.log(`swaggerSpec ${process.env.BASE_URL}/api-docs`)
