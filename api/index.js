@@ -40,7 +40,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `${process.env.BASE_URL}/api` || 'http://localhost:3001', // Replace with your server URL
+                url: `/api`, // Replace with your server URL
             },
         ],
         components: {
