@@ -5,6 +5,7 @@ const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
 const api = require('../src/routes/api.routes')
+const serveStatic = require('serve-static');
 
 app.get('/favicon.ico', (req, res) => {
     res.status(204).end(); // Devuelve un código 204 No Content
@@ -68,6 +69,11 @@ const options = {
         docExpansion: 'none', // Colapsar encabezados
     },
 };
+
+// Ruta para servir los archivos estáticos de Swagger UI
+const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath();
+app.use('/api/api-docs-static', express.static(swaggerUiAssetPath));
+app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
 
 // Use Swagger-UI
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
