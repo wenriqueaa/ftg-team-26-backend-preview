@@ -85,7 +85,7 @@ const options = {
 
 // Configura Swagger UI con rutas de archivos estáticos
 app.use(
-  '/api',
+  '/api/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, options, {
     customCssUrl: '/swagger-ui/swagger-ui.css',
