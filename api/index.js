@@ -1,20 +1,10 @@
 const express = require('express')
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
 const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
 const api = require('../src/routes/api.routes')
 const serveStatic = require('serve-static');
-
-// app.get('/favicon.ico', (req, res) => {
-//     res.status(204).end(); // Devuelve un código 204 No Content
-// });
-
-// Definición de rutas
-app.get('/api/example', (req, res) => {
-    res.json({ message: 'This is a valid route' });
-});
+const swaggerUi = require('swagger-ui-express');
 
 dotenv.config();
 const port = process.env.PORT
@@ -25,6 +15,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 app.use('/', api)
+
+app.listen(port, () => {
+    console.log(`Servidor conectado en el puerto ${port}`)
+})
+
+const swaggerJsdoc = require('swagger-jsdoc');
 
 // Swagger configuration
 const swaggerOptions = {
@@ -66,34 +62,35 @@ const options = {
     },
 };
 
-// Ruta para servir los archivos estáticos de Swagger UI
-// const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath();
-// app.use('/api/api-docs-static', express.static(swaggerUiAssetPath));
-// app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
-
-// // Use Swagger-UI
-// app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
-// console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
-
-// // Servir los archivos estáticos de Swagger UI manualmente
-// const swaggerUiPath = require('swagger-ui-dist').getAbsoluteFSPath();
-// app.use('/api/api-docs-static', express.static(swaggerUiPath));
-
-
-// // Configura los archivos estáticos
-// app.use('/swagger-ui', express.static('public/swagger-ui'));
-
 // Configura Swagger UI con rutas de archivos estáticos
 app.use(
-  '/api/api-docs',
+  '/api-docs',
   swaggerUi.serve,
-  swaggerUi.setup(swaggerSpec, options, {
-    customCssUrl: '/swagger-ui/swagger-ui.css',
-    customJsUrl: '/swagger-ui/swagger-ui-bundle.js',
-  })
+  swaggerUi.setup(swaggerSpec, options )
 );
-console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
+console.log(`swaggerSpec ${process.env.BASE_URL}/api-docs`)
 
-app.listen(port, () => {
-    console.log(`Servidor conectado en el puerto ${port}`)
-})
+
+// Endpoint para servir swagger.json dinámico
+app.get('/swagger.json', (req, res) => {
+    res.json(swaggerSpec);
+  });
+
+// Endpoint para ReDoc
+app.get('/redoc', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>ReDoc</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,700|Roboto+Mono:400,700">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons">
+      </head>
+      <body>
+        <redoc spec-url='/swagger.json'></redoc>
+        <script src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js"></script>
+      </body>
+      </html>
+    `);
+  });
+  
