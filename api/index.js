@@ -71,14 +71,28 @@ const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath();
 app.use('/api/api-docs-static', express.static(swaggerUiAssetPath));
 app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
 
-// Use Swagger-UI
-app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
+// // Use Swagger-UI
+// app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
+// console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
+
+// // Servir los archivos estáticos de Swagger UI manualmente
+// const swaggerUiPath = require('swagger-ui-dist').getAbsoluteFSPath();
+// app.use('/api/api-docs-static', express.static(swaggerUiPath));
+
+
+// // Configura los archivos estáticos
+// app.use('/swagger-ui', express.static('public/swagger-ui'));
+
+// Configura Swagger UI con rutas de archivos estáticos
+app.use(
+  '/api/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, options, {
+    customCssUrl: '/swagger-ui/swagger-ui.css',
+    customJsUrl: '/swagger-ui/swagger-ui-bundle.js',
+  })
+);
 console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
-
-// Servir los archivos estáticos de Swagger UI manualmente
-const swaggerUiPath = require('swagger-ui-dist').getAbsoluteFSPath();
-app.use('/api/api-docs-static', express.static(swaggerUiPath));
-
 
 app.listen(port, () => {
     console.log(`Servidor conectado en el puerto ${port}`)
