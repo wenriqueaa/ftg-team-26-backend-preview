@@ -7,9 +7,9 @@ const cors = require('cors')
 const api = require('../src/routes/api.routes')
 const serveStatic = require('serve-static');
 
-app.get('/favicon.ico', (req, res) => {
-    res.status(204).end(); // Devuelve un código 204 No Content
-});
+// app.get('/favicon.ico', (req, res) => {
+//     res.status(204).end(); // Devuelve un código 204 No Content
+// });
 
 // Definición de rutas
 app.get('/api/example', (req, res) => {
@@ -25,10 +25,6 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cors())
 app.use('/', api)
-
-app.listen(port, () => {
-    console.log(`Servidor conectado en el puerto ${port}`)
-})
 
 // Swagger configuration
 const swaggerOptions = {
@@ -78,3 +74,12 @@ app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
 // Use Swagger-UI
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
 console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
+
+// Servir los archivos estáticos de Swagger UI manualmente
+const swaggerUiPath = require('swagger-ui-dist').getAbsoluteFSPath();
+app.use('/api/api-docs-static', express.static(swaggerUiPath));
+
+
+app.listen(port, () => {
+    console.log(`Servidor conectado en el puerto ${port}`)
+})
