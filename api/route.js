@@ -1,35 +1,7 @@
-const express = require('express')
-const swaggerUi = require('swagger-ui-express');
+// api/api-docs.js
+import swaggerUi from "swagger-ui-express";
 const swaggerJsdoc = require('swagger-jsdoc');
-const app = express()
-const dotenv = require('dotenv')
-const cors = require('cors')
-const api = require('../src/routes/api.routes')
 
-app.get('/favicon.ico', (req, res) => {
-    res.status(204).end(); // Devuelve un código 204 No Content
-});
-
-// Definición de rutas
-app.get('/api/example', (req, res) => {
-    res.json({ message: 'This is a valid route' });
-});
-
-dotenv.config();
-const port = process.env.PORT
-const databaseConnect = require('../src/config/db');
-databaseConnect()
-
-app.use(express.json())
-app.use(express.urlencoded({ extended: false }))
-app.use(cors())
-app.use('/', api)
-
-app.listen(port, () => {
-    console.log(`Servidor conectado en el puerto ${port}`)
-})
-
-// Swagger configuration
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
@@ -59,8 +31,6 @@ const swaggerOptions = {
     },
     apis: ['./src/routes/*.js'], // Adjust to the location of your route files
 };
-
-// Initialize Swagger documentation
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 const options = {
@@ -69,6 +39,13 @@ const options = {
     },
 };
 
-// Use Swagger-UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
-console.log(`swaggerSpec ${process.env.BASE_URL}/api-docs`)
+
+export default async function handler(req, res) {
+  if (req.method === "GET") {
+    const app = require("express")();
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
+    app(req, res);
+  } else {
+    res.status(405).json({ message: "Method Not Allowed" });
+  }
+}
