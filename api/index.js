@@ -67,9 +67,9 @@ const options = {
 };
 
 // Ruta para servir los archivos estáticos de Swagger UI
-const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath();
-app.use('/api/api-docs-static', express.static(swaggerUiAssetPath));
-app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
+// const swaggerUiAssetPath = require('swagger-ui-dist').getAbsoluteFSPath();
+// app.use('/api/api-docs-static', express.static(swaggerUiAssetPath));
+// app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
 
 // // Use Swagger-UI
 // app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
@@ -85,7 +85,7 @@ app.use('/swagger-static', serveStatic('./node_modules/swagger-ui-dist'));
 
 // Configura Swagger UI con rutas de archivos estáticos
 app.use(
-  '/api/api-docs',
+  '/api-docs',
   swaggerUi.serve,
   swaggerUi.setup(swaggerSpec, options, {
     customCssUrl: '/swagger-ui/swagger-ui.css',

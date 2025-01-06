@@ -6,7 +6,11 @@
       "dest": "/api/index.js"
     },
     {
-      "src": "/api/api-docs-static/(.*)",
+      "src": "/api/(.*)",
+      "dest": "/api/index.js"
+    },
+    {
+      "src": "/(.*)",
       "dest": "/api/index.js"
     }
   ]
