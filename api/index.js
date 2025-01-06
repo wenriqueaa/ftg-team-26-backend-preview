@@ -70,5 +70,5 @@ const options = {
 };
 
 // Use Swagger-UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
-console.log(`swaggerSpec ${process.env.BASE_URL}/api-docs`)
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
+console.log(`swaggerSpec ${process.env.BASE_URL}/api/api-docs`)
