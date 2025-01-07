@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const workOrderSchema = new mongoose.Schema({
     workOrderNumber: {
         type: String,
-        required: true,
         unique: true,
         immutable: true
     },
@@ -61,31 +60,25 @@ const workOrderSchema = new mongoose.Schema({
     },
     workOrderAddress: {
         type: String,
-        required: true
     },
     workOrderLocation: {
         type: {
             type: String,
             enum: ['Point'],
-            required: true
         },
         coordinates: {
             type: [Number],
-            required: true
         }
     },
     workOrderclientEmail: {
         type: String,
-        required: true,
         immutable: true
     },
     workOrderClientContactPerson: {
         type: String,
-        required: true
     },
     workOrderClientPhone: {
         type: String,
-        required: true
     }
 }, {
     timestamps: true
@@ -94,11 +87,32 @@ const workOrderSchema = new mongoose.Schema({
 workOrderSchema.index({ workOrderLocation: '2dsphere' });
 
 workOrderSchema.pre('save', async function (next) {
-    if (this.isNew || this.isModified('workOrderSupervisor')) {
+    if (this.isNew) {
+        const Client = mongoose.model('Client');
+        const client = await Client.findById(this.clientId);
+        if (client) {
+            this.workOrderClientPhone = client.clientContactPersonPhone;
+            this.workOrderClientContactPerson = client.clientContactPerson;
+            this.workOrderclientEmail = client.clientEmail;
+            this.workOrderLocation = client.clientGeoLocation;
+            this.workOrderAddress = client.clientAddress;
+        } else {
+            const error = new Error('Client not found.');
+            return next(error);
+        }
+    }
+    next();
+});
+workOrderSchema.pre('save', async function (next) {
+    if (this.isNew && this.workOrderSupervisor) {
         const User = mongoose.model('User');
         const supervisor = await User.findById(this.workOrderSupervisor);
-        if (!supervisor || supervisor.role !== 'supervisor') {
-            const error = new Error('Assigned supervisor does not exist or is not a supervisor.');
+        if (!supervisor) {
+            const error = new Error('Assigned supervisor does not exist.');
+            return next(error);
+        }
+        if (supervisor.userRole !== 'supervisor') {
+            const error = new Error(`Assigned supervisor is a role ${supervisor.userRole}.`);
             return next(error);
         }
     }
@@ -109,8 +123,12 @@ workOrderSchema.pre('save', async function (next) {
     if (this.workOrderAssignedTechnician) {
         const User = mongoose.model('User');
         const technician = await User.findById(this.workOrderAssignedTechnician);
-        if (!technician || technician.role !== 'technician') {
-            const error = new Error('Assigned technician does not exist or is not a technician.');
+        if (!technician) {
+            const error = new Error('Assigned technician does not exist.');
+            return next(error);
+        }
+        if (technician.userRole !== 'technician') {
+            const error = new Error('Assigned technician is not a role technician.');
             return next(error);
         }
     }
@@ -122,7 +140,7 @@ workOrderSchema.pre('save', async function (next) {
         const Client = mongoose.model('Client');
         const client = await Client.findById(this.clientId);
         if (client) {
-            this.workOrderclientEmail = client.email;
+            this.workOrderclientEmail = client.clientEmail;
         } else {
             const error = new Error('Client not found.');
             return next(error);
@@ -140,13 +158,13 @@ workOrderSchema.pre('save', async function (next) {
                 {
                     workOrderScheduledDate: {
                         $lt: new Date(this.workOrderScheduledDate.getTime() + this.workOrderEstimatedDuration * 60 * 60 * 1000),
-                        $gte: this.workOrderScheduledDate
+                        $gt: this.workOrderScheduledDate
                     }
                 },
                 {
                     workOrderScheduledDate: {
                         $lt: this.workOrderScheduledDate,
-                        $gte: new Date(this.workOrderScheduledDate.getTime() - this.workOrderEstimatedDuration * 60 * 60 * 1000)
+                        $gt: new Date(this.workOrderScheduledDate.getTime() - this.workOrderEstimatedDuration * 60 * 60 * 1000)
                     }
                 }
             ]

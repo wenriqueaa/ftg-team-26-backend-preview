@@ -343,6 +343,37 @@ router.patch('/userclosesession/:id', validateToken, User.closeUserSession);
 router.post('/userregisteradmin', User.registerAdmin);
 
 // Revisar que exista usuario administrador
+/**
+ * @swagger
+ * /usercheckadmin:
+ *   get:
+ *     summary: Check if an administrator exists
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Administrator exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example: { "hasAdministrator": true }
+ *       404:
+ *         description: Administrator not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example: { "hasAdministrator": false }
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               example: { "ok": false, "message": "Internal server error" }
+//  *     security:
+//  *       - BearerAuth: []
+ */
 router.get('/usercheckadmin', User.hasAdministrator);
 
 

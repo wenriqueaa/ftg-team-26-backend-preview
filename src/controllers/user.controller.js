@@ -1,5 +1,6 @@
 const { ObjectId } = require('mongodb');
 const User = require('../models/User');
+const WorkOrder = require('../models/WorkOrder');
 const jwt = require('jsonwebtoken');
 const mail = require('./mail.controller'); // Para enviar correos electrónicos
 const bcrypt = require('bcrypt');
@@ -277,7 +278,7 @@ const hasAdministrator = async (req, res) => {
     try {
         const adminCount = await User.countDocuments({ userRole: 'administrator' });
         if (adminCount === 0) {
-            return res.status(200).json({ hasAdministrator: false });
+            return res.status(404).json({ hasAdministrator: false });
         }
         return res.status(200).json({ hasAdministrator: true });
     } catch (error) {
@@ -317,7 +318,7 @@ const registerAdmin = async (req, res) => {
         // Register in audit_logs (req, action, documentId, changes) 
         await registerAuditLog(req, 'CREATE', newUser._id, { newRecord: newUser.toObject() });
         // Enviar correo de confirmación
-        const confirmationLink = `http://${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: `Bienvenido ${userLastName} a gestiON`,
@@ -538,10 +539,10 @@ const registerAuditLog = async (req, action, documentId, changes) => {
     if (token) {
         const decoded = jwt.verify(token, secret);
         auditLogUser = decoded.userData
-    } 
+    }
     if (!token && documentId) {
         auditLogUser = documentId
-    } 
+    }
     const auditLogData = {
         auditLogUser: auditLogUser,                             // User who performed the action (can be null)
         auditLogAction: action,                                 // Action performed e.g., "CREATE", "UPDATE", "DELETE"
@@ -660,10 +661,25 @@ const updateUserById = async (req, res) => {
 // Delete a user by id
 const deleteUserById = async (req, res) => {
     const { id } = req.params;
-    try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        const secret = process.env.SECRET_KEY;
+    const token = req.header('Authorization')?.split(' ')[1];
+    const secret = process.env.SECRET_KEY;
+    if (!token) {
+        return res.status(400).json({
+            ok: false,
+            error: 'Token no proporcionado'
+        });
+    }
+    console.log('deleteUserById token ', token);
+try {
         const decoded = jwt.verify(token, secret);
+        console.log('deleteUserById decoded and id ', decoded, id);
+
+        if (decoded.userData === id) {
+            return res.status(401).json({
+                ok: false,
+                message: 'No tienes permisos para autoeliminarte'
+            });
+        }
         const userDataToken = await User.findById(decoded.userData);
 
         if (userDataToken.userRole !== 'administrator') {
@@ -672,11 +688,41 @@ const deleteUserById = async (req, res) => {
                 message: 'No tienes permisos para eliminar usuarios'
             });
         }
-        if (userDataToken._id === id) {
+        const userValidate = await User.findById(id)
+        if (!userValidate) {
+            return res.status(404).json({
+                ok: false,
+                message: 'No existe usuario con el id proporcionado'
+            });
+        }
+        if (userDataToken._id === userValidate._id) {
             return res.status(401).json({
                 ok: false,
                 message: 'No tienes permisos para autoeliminarte'
             });
+        }
+        const workOrderCount = await WorkOrder.countDocuments({ workOrderSupervisor: userValidate._id });
+        if (workOrderCount > 0) {
+            // Register in audit_logs (req, action, documentId, changes) 
+            userValidate.userIsActive = false;
+            await userValidate.save();
+            await registerAuditLog(req, 'INACTIVE', userValidate._id, { actionDetails: 'Solicitada eliminación, Inactiva Usuario' });
+            return res.status(200).json({
+                ok: true,
+                message: 'No se puede eliminar el supervisor, tiene órdenes de trabajo registradas. Se aplicó inactivación',
+                data: userValidate
+            })
+        }
+        const workOrderAssignedCount = await WorkOrder.countDocuments({ workOrderAssignedTechnician: userValidate._id });
+        if (workOrderAssignedCount > 0) {
+            userValidate.userIsActive = false;
+            await userValidate.save();
+            await registerAuditLog(req, 'INACTIVE', userValidate._id, { actionDetails: 'Solicitada eliminación, Inactiva Usuario' });
+            return res.status(200).json({
+                ok: true,
+                message: 'No se puede eliminar el técnico, tiene órdenes de trabajo asignadas. Se aplicó inactivación',
+                data: userValidate
+            })
         }
         const user = await User.findByIdAndDelete(id)
         if (!user)

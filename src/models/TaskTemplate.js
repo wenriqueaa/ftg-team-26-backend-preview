@@ -5,7 +5,7 @@ const Schema = mongoose.Schema;
 const TaskTemplateSchema = new Schema({
     serviceType: {
         type: String,
-        enum: ['inspection', 'installation', 'maintenance'],
+        enum: ['Inspection', 'Installation', 'Maintenance'],
         required: true,
         inmutable: true
     },
