@@ -354,6 +354,7 @@ const registerAdmin = async (req, res) => {
 
 const confirmUser = async (req, res) => {
     const token = req.query.token.trim();
+    console.log('token ', token);
     if (!token) {
         return res.status(400).json({
             ok: false,
