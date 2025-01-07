@@ -7,7 +7,7 @@ const serveStatic = require('serve-static');
 const swaggerUi = require('swagger-ui-express');
 
 dotenv.config();
-const port = process.env.PORT
+const port = 0 //process.env.PORT
 const databaseConnect = require('../src/config/db');
 databaseConnect()
 
