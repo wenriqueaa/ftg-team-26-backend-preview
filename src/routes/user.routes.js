@@ -386,7 +386,6 @@ router.get('/usercheckadmin', User.hasAdministrator);
 */
 router.patch('/userconfirm', User.confirmUser);
 
-
 // Buscar usuario por el id
 /**
  * @swagger
