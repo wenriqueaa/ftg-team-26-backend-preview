@@ -86,7 +86,8 @@ router.get('/workorderbyclient/:id', validateToken, workOrderController.getAllWo
 
 // getAllWorkOrdersByClient,
 // getAllWorkOrdersByTechnician,
-// getReportWorkOrder
+
+router.get('/workorderreport/:id', validateToken, workOrderController.getReportWorkOrder);
 
 
 module.exports = router;
