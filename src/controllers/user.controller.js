@@ -661,6 +661,13 @@ const updateUserById = async (req, res) => {
 // Delete a user by id
 const deleteUserById = async (req, res) => {
     const { id } = req.params;
+    if (!req.query.userDeletionCause) {
+        return res.status(400).json({
+            ok: false,
+            message: 'Se requiere causa de eliminación'
+        });
+    }
+    const userDeletionCause = req.query.userDeletionCause.trim();
     const token = req.header('Authorization')?.split(' ')[1];
     const secret = process.env.SECRET_KEY;
     if (!token) {
@@ -669,6 +676,7 @@ const deleteUserById = async (req, res) => {
             error: 'Token no proporcionado'
         });
     }
+
     console.log('deleteUserById token ', token);
 try {
         const decoded = jwt.verify(token, secret);
@@ -705,6 +713,7 @@ try {
         if (workOrderCount > 0) {
             // Register in audit_logs (req, action, documentId, changes) 
             userValidate.userIsActive = false;
+            userValidate.userDeletionCause = userDeletionCause;
             await userValidate.save();
             await registerAuditLog(req, 'INACTIVE', userValidate._id, { actionDetails: 'Solicitada eliminación, Inactiva Usuario' });
             return res.status(200).json({
@@ -716,6 +725,7 @@ try {
         const workOrderAssignedCount = await WorkOrder.countDocuments({ workOrderAssignedTechnician: userValidate._id });
         if (workOrderAssignedCount > 0) {
             userValidate.userIsActive = false;
+            userValidate.userDeletionCause = userDeletionCause;
             await userValidate.save();
             await registerAuditLog(req, 'INACTIVE', userValidate._id, { actionDetails: 'Solicitada eliminación, Inactiva Usuario' });
             return res.status(200).json({
@@ -731,7 +741,7 @@ try {
                 message: 'No se puede eliminar el usuario, no encontrado'
             })
         // Register in audit_logs (req, action, documentId, changes) 
-        await registerAuditLog(req, 'DELETE', id, { deletedRecord: user.toObject() });
+        await registerAuditLog(req, 'DELETE', id, { DeletionCause: userDeletionCause, deletedRecord: user.toObject() });
         return res.status(200).json({
             ok: true,
             message: 'Usuario eliminado',
