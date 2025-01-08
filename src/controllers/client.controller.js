@@ -270,7 +270,7 @@ const searchClientsByCompanyName = async (req, res) => {
     }
 
     try {
-        const regex = new RegExp(escapeRegex(clientCompanyName), 'i'); // 'i' makes it case-insensitive
+        const regex = new RegExp(`\\b${escapeRegex(clientCompanyName)}\\b`, 'i'); // 'i' makes it case-insensitive
         const clients = await Client.find({ clientCompanyName: regex });
 
         if (clients.length === 0) {
@@ -278,7 +278,7 @@ const searchClientsByCompanyName = async (req, res) => {
         }
 
         // Register in audit_logs (req, action, documentId, changes) 
-        await registerAuditLog(req, 'READ', null, { actionDetails: `search clients by company name: ${companyName}` });
+        await registerAuditLog(req, 'READ', null, { actionDetails: `search clients by company name: ${clientCompanyName}` });
 
         return res.status(200).json({
             ok: true,
