@@ -270,8 +270,8 @@ const searchClientsByCompanyName = async (req, res) => {
     }
 
     try {
-        const regex = new RegExp(`\\b${escapeRegex(clientCompanyName)}\\b`, 'i'); // 'i' makes it case-insensitive
-        const clients = await Client.find({ clientCompanyName: regex });
+        const searchPattern = new RegExp('.*' + escapeRegex(clientCompanyName) + '.*', 'i'); // Match any substring case-insensitive
+        const clients = await Client.find({ clientCompanyName: { $regex: searchPattern } });
 
         if (clients.length === 0) {
             return res.status(404).json({ ok: false, message: 'No se encontraron clientes con el nombre de la empresa proporcionado.' });
