@@ -53,12 +53,12 @@ const createUser = async (req, res) => {
                 message: 'Se requiere email'
             });
         }
-        if (!nuevoUser.userPassword) {
-            return res.status(400).json({
-                ok: false,
-                message: 'Se requiere password'
-            });
-        }
+        // if (!nuevoUser.userPassword) {
+        //     return res.status(400).json({
+        //         ok: false,
+        //         message: 'Se requiere password'
+        //     });
+        // }
 
         // En caso de que no se proporcione un rol, asignará el rol por defecto: technician
         // En caso de que se proporcione un rol, verificar que sea válido        
@@ -100,8 +100,12 @@ const createUser = async (req, res) => {
             { expiresIn: `${process.env.CONFIRMATION_EXPIRATION}h` }
         );
         //Encrioptar la contraseña
-        const hashedPassword = await bcrypt.hash(nuevoUser.userPassword, 10);;
-        nuevoUser.userPassword = hashedPassword;
+        const hashedPassword = null;
+        if(nuevoUser.userPassword !== null){
+            let hashedPassword = await bcrypt.hash(nuevoUser.userPassword, 10);;
+            nuevoUser.userPassword = hashedPassword;
+        } 
+
         nuevoUser.userConfirmationToken = confirmationToken;
         nuevoUser.userConfirmationTokenExpires = new Date(Date.now() + process.env.CONFIRMATION_EXPIRATION * 3600000); // hora en milisegundos
 
@@ -355,6 +359,8 @@ const registerAdmin = async (req, res) => {
 
 const confirmUser = async (req, res) => {
     const token = req.query.token.trim();
+    const userEmailConfirm = req.query.email.trim();
+    const userPasswordConfirm = req.query.password.trim();
     console.log('token ', token);
     if (!token) {
         return res.status(400).json({
@@ -362,11 +368,26 @@ const confirmUser = async (req, res) => {
             error: 'Token no proporcionado'
         });
     }
+    if(!userEmailConfirm){
+        return res.status(400).json({
+            ok: false,
+            error: 'Email no proporcionado'
+        });
+    }
+    if(!userPasswordConfirm){
+        return res.status(400).json({
+            ok: false,
+            error: 'Password no proporcionado'
+        });
+    }
     try {
 
         // Verificar el token
         const decoded = jwt.verify(token, process.env.SECRET_KEY);
-
+        if(userEmailConfirm !== decoded.userEmail)return res.status(400).json({
+            ok: false,
+            error: 'Token no registrado para este usuario.'
+        });
         console.log('decoded token ', decoded);
         const user = await User.findOne({
             userEmail: decoded.userEmail,
@@ -375,7 +396,6 @@ const confirmUser = async (req, res) => {
 
         if (!user) return res.status(400).json({
             ok: false,
-
             error: 'Token inválido o expirado.'
         });
 
@@ -399,6 +419,8 @@ const confirmUser = async (req, res) => {
         user.userIsActive = true;
         user.userConfirmationToken = null;
         user.userConfirmationTokenExpires = null;
+        const hashedPassword = await bcrypt.hash(userPassword, 10);
+        user.userPassword = hashedPassword;
         await user.save();
 
         // Register in audit_logs (req, action, documentId, changes) 
