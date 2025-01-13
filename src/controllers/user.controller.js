@@ -778,6 +778,61 @@ try {
     }
 }
 
+const userByTokenConfirmation = async (req, res) => {
+    const token = req.query.token.trim();
+    console.log('token ', token);
+    if (!token) {
+        return res.status(400).json({
+            ok: false,
+            error: 'Token no proporcionado'
+        });
+    }
+    try {
+
+        // Verificar el token
+        const decoded = jwt.verify(token, process.env.SECRET_KEY);
+        console.log('decoded token ', decoded);
+        const user = await User.findOne({
+            userEmail: decoded.userEmail,
+            userConfirmationToken: token,
+        });
+
+        if (!user) return res.status(400).json({
+            ok: false,
+            error: 'Token inválido o expirado.'
+        });
+
+        // Verificar si el token está expirado
+        if (new Date() > user.userConfirmationTokenExpires) {
+            user.userIsActive = false;
+            user.userConfirmationToken = null;
+            user.userConfirmationTokenExpires = null;
+            await user.save();
+
+            // Register in audit_logs (req, action, documentId, changes) 
+            await registerAuditLog(req, 'userByTokenConfirmation', user._id, { actionDetails: 'Token expirado, inactivar usuario y limpiar token de confirmación' });
+
+            return res.status(400).json({
+                ok: false,
+                error: 'Token expirado. Contacte al administrador.'
+            });
+        }
+
+        return res.status(200).json({
+            ok: true,
+            message: 'Usuario en espera de confirmación',
+            data: user
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+
+            error: `Error interno del servidor. ${error.code} ${error.message}`
+        });
+    }
+};
+
 module.exports = {
     createUser
     , loginUser
@@ -791,5 +846,6 @@ module.exports = {
     , getAllUsers
     , updateUserById
     , deleteUserById
+    , userByTokenConfirmation
 };
 
