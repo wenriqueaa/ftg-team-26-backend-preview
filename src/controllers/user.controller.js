@@ -114,7 +114,7 @@ const createUser = async (req, res) => {
         await registerAuditLog(req, 'CREATE', nuevoUser._id, { newdRecord: nuevoUser.toObject() });
 
         // Enviar correo de confirmación
-        const confirmationLink = `http://${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: `Bienvenido ${nuevoUser.userFullName} a gestiON`,
