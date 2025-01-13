@@ -471,7 +471,7 @@ router.get('/user/:id', validateToken, User.getUserById)
 /**
  * @swagger
  * /userbyconfirmation:
- *   patch:
+ *   get:
  *     summary: Review token by user
  *     tags: [Users]
  *     parameters:
@@ -489,7 +489,7 @@ router.get('/user/:id', validateToken, User.getUserById)
  *           application/json:
  *             schema:
  *               type: object
- *               example: { "ok": true, "message": "User en confirmacion", data: { "_id": "676fcfeec92c407aed2a6dc3", "userName": "APPGESTION_QA", "userEmail": "correo@gmail.com"}
+ *               example: { "ok": true, "message": "User en confirmacion" }
  *       404:
  *         description: User not found
  *         content:
