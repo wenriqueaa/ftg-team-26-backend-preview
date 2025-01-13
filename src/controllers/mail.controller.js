@@ -2,7 +2,10 @@ const transporter = require('../config/mail');
 const AuditLogController = require('../controllers/auditLog.controller'); // Controlador de auditoría
 
 // Lógica para enviar correos, send mail by functionality
-const sendEmail = async (req, functionalitySendMail, documentId, emailData) => {
+const sendEmail = async (req) => {
+    const functionalitySendMail = req.query.functionalitySendMail;
+    const documentId = req.query.documentId;
+    const emailData = req.body;
     if(!emailData)
         {
             console.log('data:', emailData, req, functionalitySendMail, documentId );

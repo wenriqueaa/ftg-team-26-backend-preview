@@ -126,7 +126,10 @@ const createUser = async (req, res) => {
               <p>Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora.</p>`
         }
         // Reutilizar la función de envío de correos
-        const result = await mail.sendEmail(emailData);
+        const reqMail = req;
+        reqMail.body = emailData;
+        reqMail.params = { query: { functionalitySendMail : 'userCreate', documentId: nuevoUser._id } };
+        const result = await mail.sendEmail(reqMail);
         console.log('result sendMail', result);
         if (!result.success) {
             const userDelete = await User.findOne({ userEmail: userEmail });
@@ -333,7 +336,10 @@ const registerAdmin = async (req, res) => {
               <p>Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora.</p>`
         }
         // Reutilizar la función de envío de correos
-        const result = await mail.sendEmail(emailData);
+        const reqMail = req;
+        reqMail.body = emailData;
+        reqMail.params = { query: { functionalitySendMail : 'userRegisterAdmin', documentId: nuevoUser._id } };
+        const result = await mail.sendEmail(reqMail);
         console.log('result sendMail', result);
         if (!result.success) {
             const userDelete = await User.findOne({ userEmail: userEmail });
