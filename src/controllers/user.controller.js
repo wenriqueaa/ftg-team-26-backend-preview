@@ -436,7 +436,7 @@ const confirmUser = async (req, res) => {
         return res.status(500).json({
             ok: false,
 
-            error: 'Error interno del servidor.'
+            error: `Error interno del servidor. code: ${error.code} message: ${error.message}`
         });
     }
 };
