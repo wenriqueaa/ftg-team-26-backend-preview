@@ -44,6 +44,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
         const app = require("express")();
         app.use("/api/api-docs", swaggerUi.serveFiles(swaggerSpec, options), swaggerUi.setup(swaggerSpec, options));
+        res.setHeader("Content-Security-Policy", "default-src 'self'; img-src 'self' https://ftg-team-26-backend-preview.vercel.app");
         app(req, res);
     } else {
         res.status(405).json({ message: "Method Not Allowed" });
