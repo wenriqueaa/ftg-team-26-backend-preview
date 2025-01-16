@@ -420,7 +420,7 @@ const confirmUser = async (req, res) => {
         user.userIsActive = true;
         user.userConfirmationToken = null;
         user.userConfirmationTokenExpires = null;
-        const hashedPassword = await bcrypt.hash(userPasswordConfirm, 10);
+        const hashedPassword = await bcrypt.hash(userPassword, 10);
         user.userPassword = hashedPassword;
         await user.save();
 
@@ -436,7 +436,7 @@ const confirmUser = async (req, res) => {
         return res.status(500).json({
             ok: false,
 
-            error: `Error interno del servidor. code: ${error.code} message: ${error.message}`
+            error: 'Error interno del servidor.'
         });
     }
 };
@@ -629,15 +629,15 @@ const updateUserById = async (req, res) => {
                 message: 'No se encontró ningún usuario con el id proporcionado'
             })
         if (originalData) {
-            if (userName) updateDataById.userName = userName.trim().upperCase();
-            if (userLastName) updateDataById.userLastName = userLastName.trim().upperCase();
+            if (userName) updateDataById.userName = userName.trim().toUpperCase();
+            if (userLastName) updateDataById.userLastName = userLastName.trim().toUpperCase();
             if (userEmail && userDataToken.userRole === 'administrator') updateDataById.userEmail = userEmail;
             if (userRole && userDataToken.userRole === 'administrator' && userRole !== 'administrator' && userDataToken._id !== originalData._id) updateDataById.userRole = userRole;
             if (userIsActive && userDataToken.userRole === 'administrator' && userDataToken._id !== originalData._id) updateDataById.userIsActive = userIsActive;
             if (userPassword) {
                 const hashedPassword = await bcrypt.hash(userPassword, 10);
                 updateDataById.userPassword = hashedPassword
-            };
+};
             // Identify changes
             for (let key in updateDataById) {
                 if (originalData[key] !== updateDataById[key]) {

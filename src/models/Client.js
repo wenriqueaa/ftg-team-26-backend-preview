@@ -40,7 +40,7 @@ const clientSchema = new mongoose.Schema({
   },
   clientGeoLocation: {
     type: { type: String, default: 'Point' }, // GeoJSON type
-    coordinates: { type: [Number] } // [longitude, latitude]
+    coordinates: { type: [Number], default: [-58.3816, -34.6037] } // [longitude, latitude] for Buenos Aires, Argentina
   }
 },
   {
