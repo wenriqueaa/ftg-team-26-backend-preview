@@ -3,7 +3,7 @@ const app = express()
 const dotenv = require('dotenv')
 const cors = require('cors')
 const api = require('../src/routes/api.routes')
-// const serveStatic = require('serve-static');
+const serveStatic = require('serve-static');
 const swaggerUi = require('swagger-ui-express');
 
 dotenv.config();
@@ -33,7 +33,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `${process.env.BASE_URL}/api` || `http://localhost:3001'/api`, // Replace with your server URL
+                url: `https://ftg-team-26-backend-preview.vercel.app/api`, // Replace with your server URL
             },
         ],
         components: {
@@ -94,6 +94,7 @@ app.get('/redoc', (req, res) => {
     `);
   });
   
+
 // try {
 //   module.exports.SwaggerUIBundle = require("./swagger-ui-bundle.js")
 //   module.exports.SwaggerUIStandalonePreset = require("./swagger-ui-standalone-preset.js")
