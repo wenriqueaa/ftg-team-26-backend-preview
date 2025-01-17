@@ -418,6 +418,19 @@ const getAllWorkOrdersPendingToApprove = async (req, res) => {
 };
 
 // Get all work orders for a supervisor or technician within a week from a given date
+/**
+ * Retrieves work orders for the week based on the user's role and the provided date.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} req.header - The request headers.
+ * @param {Object} req.params - The request parameters.
+ * @param {string} req.params.date - The date to start the week from (optional).
+ * @param {Object} res - The response object.
+ * 
+ * @returns {Promise<void>} - Returns a JSON response with the work orders for the week.
+ * 
+ * @throws {Error} - Throws an error if the token is invalid or if there is an issue retrieving the work orders.
+ */
 const getWorkOrdersForWeek = async (req, res) => {
     const token = req.header('Authorization')?.split(' ')[1];
     const secret = process.env.SECRET_KEY;
@@ -430,10 +443,11 @@ const getWorkOrdersForWeek = async (req, res) => {
             error: 'El rol debe ser supervisor o técnico'
         });
     }
-
-    const { date } = req.params;
-    console.info('date', date);
-    console.info( 'Date', userDataToken);
+    
+    let { date } = req.params;
+    if (!date) {
+        date = new Date().toISOString().split('T')[0];
+    }
     const startDate = date ? new Date(date) : new Date();
     console.info( 'startDate', startDate);
     const endDate = new Date(startDate);
