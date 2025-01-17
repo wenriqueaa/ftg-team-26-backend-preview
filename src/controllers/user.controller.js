@@ -405,6 +405,7 @@ const confirmUser = async (req, res) => {
             user.userIsActive = false;
             user.userConfirmationToken = null;
             user.userConfirmationTokenExpires = null;
+            user.userPassword = null;
             await user.save();
 
             // Register in audit_logs (req, action, documentId, changes) 
@@ -420,7 +421,7 @@ const confirmUser = async (req, res) => {
         user.userIsActive = true;
         user.userConfirmationToken = null;
         user.userConfirmationTokenExpires = null;
-        const hashedPassword = await bcrypt.hash(userPassword, 10);
+        const hashedPassword = await bcrypt.hash(userPasswordConfirm, 10);
         user.userPassword = hashedPassword;
         await user.save();
 
