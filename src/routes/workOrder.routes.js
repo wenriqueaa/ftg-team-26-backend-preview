@@ -178,7 +178,7 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
 
 /**
  * @swagger
- * /workordersforweek:
+ * /workordersforweek/{date}:
  *   get:
  *     summary: Retrieve a list of work orders for the current week
  *     tags: [WorkOrders]
