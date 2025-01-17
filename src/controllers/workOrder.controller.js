@@ -432,7 +432,10 @@ const getWorkOrdersForWeek = async (req, res) => {
     }
 
     const { date } = req.params;
+    console.info('date', date);
+    console.info( 'Date', userDataToken);
     const startDate = date ? new Date(date) : new Date();
+    console.info( 'startDate', startDate);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
 
@@ -450,19 +453,22 @@ const getWorkOrdersForWeek = async (req, res) => {
             });
         }
 
-        const formattedWorkOrders = workOrders.map(order => ({
-            clientId: order.clientId,
-            workOrderId: order._id,
-            clientCompanyName: order.clientCompanyName,
-            clientContactPerson: order.clientContactPerson,
-            clientDirection: order.clientDirection,
-            clientPhone: order.clientPhone,
-            workOrderLocation: order.workOrderLocation,
-            serviceType: order.serviceType,
-            workOrderStatus: order.workOrderStatus,
-            date: new Date(order.workOrderScheduledDate).toLocaleDateString('es-ES'),
-            time: new Date(order.workOrderScheduledDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
-            workOrderNumber: order.workOrderNumber
+        const formattedWorkOrders = await Promise.all(workOrders.map(async order => {
+            const client = await User.findById(order.clientId);
+            return {
+                clientId: order.clientId,
+                workOrderId: order._id,
+                clientCompanyName: client ? client.companyName : 'N/A',
+                clientContactPerson: order.workOrderClientContactPerson,
+                clientAddress: order.workOrderAddress,
+                clientPhone: order.workOrderClientPhone,
+                workOrderLocation: order.workOrderLocation,
+                serviceType: order.serviceType,
+                workOrderStatus: order.workOrderStatus,
+                date: new Date(order.workOrderScheduledDate).toLocaleDateString('es-ES'),
+                time: new Date(order.workOrderScheduledDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                workOrderNumber: order.workOrderNumber
+            };
         }));
         res.status(200).json({ ok: true, message: 'Ordenes de trabajo encontradas', data: formattedWorkOrders });
     } catch (error) {
