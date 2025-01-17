@@ -175,6 +175,7 @@ router.get('/workordersreject', validateToken, workOrderController.getAllWorkOrd
  */
 router.get('/workorderstoapprove', validateToken, workOrderController.getAllWorkOrdersPendingToApprove);
 
+
 /**
  * @swagger
  * /workordersforweek:
@@ -182,7 +183,7 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *     summary: Retrieve a list of work orders for the current week
  *     tags: [WorkOrders]
  *     security:
- *       - bearerAuth: []
+ *       - BearerAuth: []
  *     responses:
  *       200:
  *         description: A list of work orders for the current week
@@ -196,6 +197,9 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *       500:
  *         description: Internal server error
  */
-router.get('/workordersforweek', validateToken, workOrderController.getWorkOrdersForWeek);
+
+router.get('/workordersforweek/:date', validateToken, workOrderController.getWorkOrdersForWeek);
 
 module.exports = router;
+
+

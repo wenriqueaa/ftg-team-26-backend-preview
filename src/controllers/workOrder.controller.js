@@ -432,9 +432,9 @@ const getWorkOrdersForWeek = async (req, res) => {
     }
 
     const { date } = req.params;
-    const startDate = new Date(date);
+    const startDate = date ? new Date(date) : new Date();
     const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 7);
+    endDate.setDate(startDate.getDate() + 6);
 
     try {
         let workOrders;
