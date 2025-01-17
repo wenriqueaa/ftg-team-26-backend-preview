@@ -471,7 +471,7 @@ const getWorkOrdersForWeek = async (req, res) => {
             };
         }));
         if (formattedWorkOrders.length === 0) {
-            return res.status(204).json({ ok: false, message: 'No se encontraron órdenes de trabajo', data: [] });
+            return res.status(202).json({ ok: false, message: 'No se encontraron órdenes de trabajo', data: [] });
         }
         res.status(200).json({ ok: true, message: 'Ordenes de trabajo encontradas', data: formattedWorkOrders });
     } catch (error) {
