@@ -187,9 +187,8 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *         name: date
  *         schema:
  *           type: string
- *         required: true
- *         description: The date to retrieve work orders for the week
- *         example: 2025-01-08
+ *         description: The date to retrieve work orders for the week. If no date is provided, the current week will be used.
+ *         example: 2025-01-17
  *     security:
  *       - BearerAuth: []
  *     responses:
