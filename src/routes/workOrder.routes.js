@@ -200,6 +200,13 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *             schema:
  *               type: array
  *               example: []
+ *       204:
+ *         description: No work orders found for the current week
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             example: { "ok": true, "message": "Ordenes de trabajo encontradas", "data": []}
  *       401:
  *         description: Unauthorized
  *       500:
