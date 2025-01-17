@@ -417,6 +417,59 @@ const getAllWorkOrdersPendingToApprove = async (req, res) => {
     }
 };
 
+// Get all work orders for a supervisor or technician within a week from a given date
+const getWorkOrdersForWeek = async (req, res) => {
+    const token = req.header('Authorization')?.split(' ')[1];
+    const secret = process.env.SECRET_KEY;
+    const decoded = jwt.verify(token, secret);
+    const userDataToken = await User.findById(decoded.userData);
+    const validRoles = ['supervisor', 'technician'];
+    if (!validRoles.includes(userDataToken.userRole)) {
+        return res.status(400).json({
+            ok: false,
+            error: 'El rol debe ser supervisor o técnico'
+        });
+    }
+
+    const { date } = req.params;
+    const startDate = new Date(date);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 7);
+
+    try {
+        let workOrders;
+        if (userDataToken.userRole === 'supervisor') {
+            workOrders = await WorkOrder.find({
+                workOrderSupervisor: userDataToken._id,
+                workOrderScheduledDate: { $gte: startDate, $lt: endDate }
+            });
+        } else if (userDataToken.userRole === 'technician') {
+            workOrders = await WorkOrder.find({
+                workOrderAssignedTechnician: userDataToken._id,
+                workOrderScheduledDate: { $gte: startDate, $lt: endDate }
+            });
+        }
+
+        const formattedWorkOrders = workOrders.map(order => ({
+            clientId: order.clientId,
+            workOrderId: order._id,
+            clientCompanyName: order.clientCompanyName,
+            clientContactPerson: order.clientContactPerson,
+            clientDirection: order.clientDirection,
+            clientPhone: order.clientPhone,
+            workOrderLocation: order.workOrderLocation,
+            serviceType: order.serviceType,
+            workOrderStatus: order.workOrderStatus,
+            date: new Date(order.workOrderScheduledDate).toLocaleDateString('es-ES'),
+            time: new Date(order.workOrderScheduledDate).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+            workOrderNumber: order.workOrderNumber
+        }));
+        res.status(200).json({ ok: true, message: 'Ordenes de trabajo encontradas', data: formattedWorkOrders });
+    } catch (error) {
+        res.status(500).json({ ok: false, message: error.message });
+    }
+};
+
 module.exports = {
     getAllWorkOrders,
     getWorkOrderById,
@@ -428,5 +481,6 @@ module.exports = {
     getReportWorkOrder,
     updateWorkOrderStatus,
     getAllWorkOrdersWithRejection,
-    getAllWorkOrdersPendingToApprove
+    getAllWorkOrdersPendingToApprove,
+    getWorkOrdersForWeek
 };
