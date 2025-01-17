@@ -182,6 +182,14 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *   get:
  *     summary: Retrieve a list of work orders for the current week
  *     tags: [WorkOrders]
+ *     parameters:
+ *       - in: path
+ *         name: date
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The date to retrieve work orders for the week
+ *         example: 2025-01-08
  *     security:
  *       - BearerAuth: []
  *     responses:
@@ -197,7 +205,6 @@ router.get('/workorderstoapprove', validateToken, workOrderController.getAllWork
  *       500:
  *         description: Internal server error
  */
-
 router.get('/workordersforweek/:date', validateToken, workOrderController.getWorkOrdersForWeek);
 
 module.exports = router;
