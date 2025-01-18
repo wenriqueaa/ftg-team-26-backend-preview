@@ -95,34 +95,10 @@ const createWorkOrder = async (req, res) => {
             const emailData = {
                 to: AssignedTechnician.userEmail,
                 subject: `Nueva Orden de Trabajo Asignada: ${newWorkOrder.workOrderNumber}`,
-                text: `Por favor gestionar la orden de trabajo asignada:
-                
-- Descripción: ${newWorkOrder.workOrderDescription}
-- Tipo de servicio: ${newWorkOrder.serviceType} 
-- Fecha programada: ${newWorkOrder.workOrderScheduledDate}
-- Duración estimada: ${newWorkOrder.workOrderEstimatedDuration} horas
-- Dirección: ${newWorkOrder.workOrderAddress}
-- Geolocalización: ${newWorkOrder.workOrderLocation}
+                text: `Por favor gestionar la orden de trabajo asignada ${newWorkOrder.workOrderDescription}; Tipo de servicio: ${newWorkOrder.serviceType}; Fecha programada: ${newWorkOrder.workOrderScheduledDate}; Duración estimada: ${newWorkOrder.workOrderEstimatedDuration} horas; Dirección de la orden de trabajo: ${newWorkOrder.workOrderAddress}; Geolocalizacion: ${newWorkOrder.workOrderLocation}
 
-Datos del cliente:
-- Email: ${newWorkOrder.workOrderclientEmail}
-- Persona de contacto: ${newWorkOrder.workOrderClientContactPerson}
-- Teléfono: ${newWorkOrder.workOrderClientPhone || ''}`,
-                html: `<p>Por favor gestionar la orden de trabajo asignada:</p>
-                <ul>
-                    <li>Descripción: ${newWorkOrder.workOrderDescription}</li>
-                    <li>Tipo de servicio: ${newWorkOrder.serviceType}</li>
-                    <li>Fecha programada: ${newWorkOrder.workOrderScheduledDate}</li>
-                    <li>Duración estimada: ${newWorkOrder.workOrderEstimatedDuration} horas</li>
-                    <li>Dirección: ${newWorkOrder.workOrderAddress}</li>
-                    <li>Geolocalización: ${newWorkOrder.workOrderLocation}</li>
-                </ul>
-                <p>Datos del cliente:</p>
-                <ul>
-                    <li>Email: ${newWorkOrder.workOrderclientEmail}</li>
-                    <li>Persona de contacto: ${newWorkOrder.workOrderClientContactPerson}</li>
-                    <li>Teléfono: ${newWorkOrder.workOrderClientPhone || ''}</li>
-                </ul>`
+                Datos del cliente: email ${newWorkOrder.workOrderclientEmail}; persona de contacto ${newWorkOrder.workOrderClientContactPerson}; teléfono de contacto ${newWorkOrder.workOrderClientPhone}`,
+                html: `<p>Por favor gestionar la orden de trabajo asignada ${newWorkOrder.workOrderDescription}; Tipo de servicio: ${newWorkOrder.serviceType}; Fecha programada: ${newWorkOrder.workOrderScheduledDate}; Duración estimada: ${newWorkOrder.workOrderEstimatedDuration} horas; Dirección de la orden de trabajo: ${newWorkOrder.workOrderAddress}; Geolocalizacion: ${newWorkOrder.workOrderLocation}</p><br><p>Datos del cliente: email ${newWorkOrder.workOrderclientEmail}; persona de contacto ${newWorkOrder.workOrderClientContactPerson}; teléfono de contacto ${newWorkOrder.workOrderClientPhone}</p>`
             }
             // Reutilizar la función de envío de correos
             const reqMail = { token : token, functionalitySendMail: 'createWorkOrder', documentId: newWorkOrder._id, emailData : emailData };
@@ -468,13 +444,7 @@ const getWorkOrdersForWeek = async (req, res) => {
         });
     }
     
-    let { dateString } = req.params;
-    let date = null;
-    if (!dateString) {
-        date = new Date().toISOString().split('T')[0];
-    } else {
-        date = new Date(dateString).toISOString().split('T')[0];
-    }
+    const date = new Date().toISOString().split('T')[0];
     const startDate = date ? new Date(date) : new Date();
     console.info( 'startDate', startDate);
     const endDate = new Date(startDate);
