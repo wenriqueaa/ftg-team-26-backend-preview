@@ -7,7 +7,7 @@ const swaggerOptions = {
         openapi: '3.0.0',
         info: {
             title: 'gestiON API',
-            version: '1.0.7',
+            version: '1.0.8',
             description: 'API documentation for gestiON, MEAN stack application by the "Footalent - Team26-Nioche" team; 2024-2025',
         },
         servers: [
