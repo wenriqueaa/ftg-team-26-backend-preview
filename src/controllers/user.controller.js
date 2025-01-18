@@ -19,6 +19,7 @@ const auditLogData = {
 
 // Crear usuario
 const createUser = async (req, res) => {
+    console.log("headers recivido",req.headers)
     try {
         const token = req.header('Authorization')?.split(' ')[1];
         const secret = process.env.SECRET_KEY;
@@ -114,16 +115,19 @@ const createUser = async (req, res) => {
         await registerAuditLog(req, 'CREATE', nuevoUser._id, { newdRecord: nuevoUser.toObject() });
 
         // Enviar correo de confirmación
-        const confirmationLink = `${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `${process.env.CLIENT_URL}/cuentaactiv?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: `Bienvenido ${nuevoUser.userFullName} a gestiON`,
             text: `Por favor confirma tu registro haciendo clic en el enlace:
               "${confirmationLink}"
               Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora(s)`,
-            html: `<p>Por favor confirma tu registro haciendo clic en el enlace de abajo:</p>
-              <a href="${confirmationLink}">Confirmar Cuenta</a>
-              <p>Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora.</p>`
+            html: `
+            <p>Hola ${nuevoUser.userName},</p>
+            <p>Tu contraseña temporal es: <strong>${nuevoUser.userPassword}</strong></p>
+            <p>Por favor confirma tu registro haciendo clic en el enlace de abajo:</p>
+            <a href="${confirmationLink}">Confirmar Cuenta</a>
+            <p>Este enlace expirará en ${process.env.CONFIRMATION_EXPIRATION} hora.</p>`
         }
         // Reutilizar la función de envío de correos
         const reqMail = { token : token, functionalitySendMail: 'userCreate', documentId: nuevoUser._id, emailData : emailData };
@@ -322,7 +326,7 @@ const registerAdmin = async (req, res) => {
         // Register in audit_logs (req, action, documentId, changes) 
         await registerAuditLog(req, 'CREATE', newUser._id, { newRecord: newUser.toObject() });
         // Enviar correo de confirmación
-        const confirmationLink = `${process.env.BASE_URL}/api/userconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `${process.env.FRONTEND_URL  || 'http://localhost:4200'}/cuentaactivconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: `Bienvenido ${userLastName} a gestiON`,
@@ -405,7 +409,6 @@ const confirmUser = async (req, res) => {
             user.userIsActive = false;
             user.userConfirmationToken = null;
             user.userConfirmationTokenExpires = null;
-            user.userPassword = null;
             await user.save();
 
             // Register in audit_logs (req, action, documentId, changes) 
@@ -417,16 +420,21 @@ const confirmUser = async (req, res) => {
             });
         }
 
+
+        // Actualizar la contraseña del usuario
+        const hashedPassword = await bcrypt.hash(userPasswordConfirm, 10);
+        user.userPassword = hashedPassword;
+
         // Activar el usuario
         user.userIsActive = true;
         user.userConfirmationToken = null;
         user.userConfirmationTokenExpires = null;
-        const hashedPassword = await bcrypt.hash(userPasswordConfirm, 10);
-        user.userPassword = hashedPassword;
         await user.save();
 
         // Register in audit_logs (req, action, documentId, changes) 
         await registerAuditLog(req, 'confirmUser', user._id, { actionDetails: 'Confirmación exitosa, Activa Usuario' });
+
+        
 
         return res.status(200).json({
             ok: true,
@@ -437,7 +445,7 @@ const confirmUser = async (req, res) => {
         return res.status(500).json({
             ok: false,
 
-            error: 'Error interno del servidor.'
+            error: 'Error interno del servidor.'+ error.message
         });
     }
 };
@@ -781,7 +789,7 @@ try {
     }
 }
 
-const userByTokenConfirmation = async (req, res) => {
+const userByTokenConfirmation = async (req, res) => { 
     const token = req.query.token.trim();
     console.log('token ', token);
     if (!token) {
