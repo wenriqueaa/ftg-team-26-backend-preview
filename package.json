@@ -24,7 +24,7 @@
     "mongoose": "^8.8.4",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",
-    "redoc": "^2.2.0",
+    "redoc": "^2.3.0",
     "serve-static": "^1.16.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-dist": "^5.18.2",
