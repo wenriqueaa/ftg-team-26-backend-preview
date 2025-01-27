@@ -33,7 +33,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `https://ftg-team-26-backend-preview.vercel.app/api`, // Replace with your server URL
+                url: `/api`, // Replace with your server URL
             },
         ],
         components: {
