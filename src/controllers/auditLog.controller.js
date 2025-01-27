@@ -10,7 +10,7 @@ const createAuditLog = async ( {auditLogUser, auditLogAction, auditLogModel, aud
       auditLogChanges
     });
   } catch (error) {
-    console.error('Error creating audit log:', error);
+    // console.error('Error creating audit log:', error);
   }
 };
 
@@ -22,7 +22,7 @@ const getAuditLogByModel = async (model, limit = 50, skip = 0) => {
         .limit(limit)
         .skip(skip);
     } catch (error) {
-      console.error('Error fetching logs:', error);
+      // console.error('Error fetching logs:', error);
       throw error;
     }
   };
@@ -35,7 +35,7 @@ const getAuditLogByModel = async (model, limit = 50, skip = 0) => {
         .limit(limit)
         .skip(skip);
     } catch (error) {
-      console.error('Error fetching logs by user:', error);
+      // console.error('Error fetching logs by user:', error);
       throw error;
     }
   };

@@ -19,9 +19,9 @@ const transporter = nodemailer.createTransport({
 // Verificar conexión al servidor SMTP
 transporter.verify((error, success) => {
     if (error) {
-        console.error('SMTP Error:', error);
+        // console.error('SMTP Error:', error);
     } else {
-        console.log('SMTP Configurado y listo para enviar correos.', success);
+        // console.log('SMTP Configurado y listo para enviar correos.', success);
     }
 });
 

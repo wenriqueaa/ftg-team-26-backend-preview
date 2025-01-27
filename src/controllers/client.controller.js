@@ -31,7 +31,7 @@ const getAllClients = async (req, res) => {
 
 // Create a client
 const createClient = async (req, res) => {
-    console.log("impresion de los headers",req.headers)
+    // console.log("impresion de los headers",req.headers)
     try {
         const nuevoClient = new Client(req.body);
         await nuevoClient.save();
@@ -58,7 +58,7 @@ const createClient = async (req, res) => {
 
 // Update a client by id
 const updateClientById = async (req, res) => {
-    console.log("impresion de los headers",req.headers)
+    // console.log("impresion de los headers",req.headers)
     const { id } = req.params;
     const { clientCompanyName, clientContactPerson, clientEmail, clientPhone, clientAddress } = req.body;
     let hasChanges = false;
@@ -107,7 +107,7 @@ const updateClientById = async (req, res) => {
             data: clientUpdated
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({
             ok: false,
             message: 'No se puede actualizar el cliente, por favor contacte al soporte',
@@ -134,7 +134,7 @@ const getClientById = async (req, res) => {
             data: client
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({
             ok: false,
             message: 'No se puede encontrar el cliente, por favor contacte al soporte',
@@ -163,7 +163,7 @@ const getClientByEmail = async (req, res) => {
             data: client
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({
             ok: false,
             message: 'No se puede encontrar el cliente, por favor contacte al soporte'
@@ -222,14 +222,14 @@ const searchClients = async (req, res) => {
             data: results
         })
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ ok: false, message: 'Error del servidor', data: error });
     }
 };
 
 // Delete a client by id
 const deleteClientById = async (req, res) => {
-    console.log("impresion de los headers",req.headers)
+    // console.log("impresion de los headers",req.headers)
     const { id } = req.params;
     try {
         // Check if the client has any associated work orders
@@ -255,7 +255,7 @@ const deleteClientById = async (req, res) => {
             data: client
         })
     } catch (error) {
-        console.log(error)
+        // console.log(error)
         return res.status(500).json({
             ok: false,
             message: 'No se puede eliminar el cliente, por favor contacte al soporte',
@@ -301,7 +301,7 @@ const searchClientsByCompanyName = async (req, res) => {
             data: clients
         });
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         return res.status(500).json({ ok: false, message: 'Error del servidor', data: error });
     }
 };

@@ -43,7 +43,7 @@ const validateToken = async (req, res, next) => {
         //continue con el flujo
         next()
     } catch (error) {
-        console.log(`Error validating token ${error}`)
+        // console.log(`Error validating token ${error}`)
         return res.status(500).json({
             ok: false,
             message: `Fatal error validating token Error ${error}`

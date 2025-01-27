@@ -9,7 +9,7 @@ const sendEmail = async ({functionalitySendMail, documentId, emailData, tokenMai
         // Registrar en audit_logs
         const changes = { success: true, messageId: documentId, email: emailData, res: info }
         await registerAuditLog(tokenMail, functionalitySendMail, documentId, changes);
-        console.log('Correo enviado:', info.messageId);
+        // console.log('Correo enviado:', info.messageId);
         return { success: true, message: `Correo enviado: ${info.messageId}` };
     } catch (error) {
         // Manejo del error sin relanzarlo
@@ -17,13 +17,13 @@ const sendEmail = async ({functionalitySendMail, documentId, emailData, tokenMai
             // Registrar en audit_logs
             const changes = { success: false, message: 'El correo no es válido.' }
             await registerAuditLog(tokenMail, functionalitySendMail, documentId, changes);
-            console.error('El correo no existe o no es válido:', error.message);
+            // console.error('El correo no existe o no es válido:', error.message);
             return { success: false, message: 'El correo no es válido.' };
         } else {
             // Registrar en audit_logs
             const changes = { success: false, message: `Error al enviar el correo. Código: ${error.responseCode}` };
             await registerAuditLog(tokenMail, functionalitySendMail, documentId, changes);
-            console.error('Error al enviar el correo:', error.message, emailData);
+            // console.error('Error al enviar el correo:', error.message, emailData);
             return { success: false, message: `Error al enviar el correo. Código: ${error.responseCode}` };
         }
     }
