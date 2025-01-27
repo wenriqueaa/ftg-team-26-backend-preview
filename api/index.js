@@ -33,7 +33,7 @@ const swaggerOptions = {
         },
         servers: [
             {
-                url: `http://localhost:3001/api`, // Replace with your server URL
+                url: `/api`, // Replace with your server URL
             },
         ],
         components: {
