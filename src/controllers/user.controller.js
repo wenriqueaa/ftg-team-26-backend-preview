@@ -326,7 +326,7 @@ const registerAdmin = async (req, res) => {
         // Register in audit_logs (req, action, documentId, changes) 
         await registerAuditLog(req, 'CREATE', newUser._id, { newRecord: newUser.toObject() });
         // Enviar correo de confirmación
-        const confirmationLink = `${process.env.FRONTEND_URL  || 'http://localhost:4200'}/cuentaactivconfirm?token=${confirmationToken}`; // Enlace de confirmación
+        const confirmationLink = `${process.env.BASE_URL  || 'http://localhost:4200'}/cuentaactivconfirm?token=${confirmationToken}`; // Enlace de confirmación
         const emailData = {
             to: userEmail,
             subject: `Bienvenido ${userLastName} a gestiON`,
