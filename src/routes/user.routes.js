@@ -334,7 +334,7 @@ router.post('/userlogin', User.loginUser);
  *           application/json:
  *             schema:
  *               type: object
- *               example: { "ok": false, "message": "User not found" }
+ *               example: { "ok": false, "message": "Usuario no encontrado" }
  *       500:
  *         description: Internal server error
  *         content:

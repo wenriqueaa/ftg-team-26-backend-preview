@@ -163,7 +163,7 @@ const loginUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({
                 ok: false,
-                message: 'User not found'
+                message: 'Usuario no encontrado'
             });
         }
 
