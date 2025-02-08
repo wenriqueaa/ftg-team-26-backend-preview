@@ -615,7 +615,7 @@ const getAllUsers = async (req, res) => {
 // Update a user by id
 const updateUserById = async (req, res) => {
     const { id } = req.params;
-    const { userName, userLastName, userEmail, userRole, userIsActive, userPassword } = req.body;
+    const { userName, userLastName, userEmail, userRole, userIsActive, userPassword, userPhone } = req.body;
     let hasChanges = false;
     try {
         const token = req.header('Authorization')?.split(' ')[1];
@@ -637,6 +637,7 @@ const updateUserById = async (req, res) => {
             if (userEmail && userDataToken.userRole === 'administrator') updateDataById.userEmail = userEmail;
             if (userRole && userDataToken.userRole === 'administrator' && userRole !== 'administrator' && userDataToken._id !== originalData._id) updateDataById.userRole = userRole;
             if (userIsActive && userDataToken.userRole === 'administrator' && userDataToken._id !== originalData._id) updateDataById.userIsActive = userIsActive;
+            if (userPhone && userDataToken.userRole === 'administrator' && userDataToken._id !== originalData._id) updateDataById.userPhone = userPhone;
             if (userPassword) {
                 const hashedPassword = await bcrypt.hash(userPassword, 10);
                 updateDataById.userPassword = hashedPassword
